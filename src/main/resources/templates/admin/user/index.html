@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{admin/layout/layout :: main-fragment(~{:: title}, ~{}, ~{:: .content-wrapper}, ~{:: #js})}">
+<head>
+    <meta charset="UTF-8">
+    <title>Danh sách User</title>
+</head>
+<body>
+<!-- Content Header (Page header) -->
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-12">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            Danh sách user
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row py-2">
+                <div class="col-12">
+
+                    <a href="/admin/users/create" type="button" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Tạo user mới
+                    </a>
+                    <a href="/admin/users" type="button" class="btn btn-info">
+                        <i class="fas fa-redo"></i> Tải lại trang
+                    </a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <table class="table table-bordered table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Họ tên</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr th:each="user : ${pageData.getContent()}">
+                                    <td>
+                                        <a th:href="@{/admin/users/{id}/detail (id=${user.id})}"  th:text="${user.username}">Username</a>
+                                    </td>
+                                    <td>
+                                        <span  th:text="${user.email}">Email</span>
+                                    </td>
+                                    <td>
+                                        <span th:each="role : ${user.roles}"
+                                              th:text="${role.name}"
+                                              class="badge badge-info mr-1"
+                                        ></span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+
+                            <div class="d-flex justify-content-center mt-3" id="pagination" th:if="${pageData.getTotalPages() != 1}">
+                                <ul class="pagination mb-0">
+                                    <li class="paginate_button page-item previous"
+                                        th:classappend="${currentPage == 1 ? 'disabled' : ''}"
+                                        id="example2_previous">
+                                        <a th:href="@{/admin/users (page=${currentPage - 1})}"
+                                           class="page-link">Previous</a>
+                                    </li>
+                                    <li class="paginate_button page-item"
+                                        th:classappend="${number == currentPage ? 'active' : ''}"
+                                        th:each="number : ${#numbers.sequence(1, pageData.totalPages)}">
+                                        <a th:href="@{/admin/users (page=${number})}"
+                                           class="page-link"
+                                           th:text="${number}">1</a>
+                                    </li>
+                                    <li class="paginate_button page-item next"
+                                        th:classappend="${currentPage == pageData.totalPages ? 'disabled' : ''}"
+                                        id="example2_next">
+                                        <a th:href="@{/admin/users (page=${currentPage + 1})}"
+                                           class="page-link">Next</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<th:block id="js">
+    <script th:inline="javascript">
+        const pageData = [[${pageData}]];
+        const currentPage = [[${currentPage}]];
+
+        console.log(pageData);
+        console.log(currentPage);
+    </script>
+</th:block>
+</body>
+</html>

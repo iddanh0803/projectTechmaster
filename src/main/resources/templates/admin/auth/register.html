@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register</title>
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" th:href="@{/admin-lte/plugins/fontawesome-free/css/all.min.css}"/>
+    <link rel="stylesheet" th:href="@{/admin-lte/dist/css/adminlte.min.css}"/>
+</head>
+<body class="hold-transition register-page">
+<div class="register-box">
+    <div class="register-logo">
+        <a href="#"><b>Register</b></a>
+    </div>
+
+    <div class="card">
+        <div class="card-body register-card-body">
+            <p class="register-box-msg">Register a new membership</p>
+            <form id="form-register">
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Username" id="username">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-envelope"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Email" id="email">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-envelope"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group mb-3">
+                    <input type="password" class="form-control" placeholder="Password" id="password">
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-4">
+                        <button type="submit" class="btn btn-primary btn-block">Register</button>
+                    </div>
+                </div>
+                <a th:href="@{/login}" class="text-center">I already have a membership</a>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+<script th:src="@{/admin-lte/plugins/jquery/jquery.min.js}"></script>
+<script th:src="@{/admin-lte/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
+<script th:src="@{/admin-lte/dist/js/adminlte.js}"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+    const formRegister = document.getElementById('form-register');
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    formRegister.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        console.log("submit form register");
+
+        const data = {
+            username: username.value,
+            email: email.value,
+            password: password.value
+        };
+
+         try {
+            let res = await axios.post('http://localhost:8080/api/v1/auth/register', data);
+            if (res.status === 200) {
+                console.log(res.data);
+            } else {
+                alert("Đăng ký thất bại");
+            }
+        } catch (e) {
+            alert(e.response.data.message)
+        }
+    })
+</script>
+</body>
+</html>

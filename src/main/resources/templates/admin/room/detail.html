@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="https://www.thymeleaf.org"
+      th:replace="~{admin/layout/layout :: main-fragment(~{:: title}, ~{:: #css}, ~{:: .content-wrapper}, ~{:: #js})}">
+
+<head>
+    <title>Chi tiết phòng</title>
+
+
+    <th:block id="css">
+        <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css"/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/highlight.js/latest/styles/github.min.css"/>
+
+        <link rel="stylesheet" th:href="@{/admin-lte/plugins/select2/css/select2.min.css}"/>
+        <link rel="stylesheet" th:href="@{/admin-lte/dist/css/style.css}">
+    </th:block>
+
+</head>
+<body>
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-12">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item">
+                            <a href="#">Dashboard</a>
+                        </li>
+                        <li class="breadcrumb-item active">
+                            Tạo Room
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row py-2">
+                <div class="col-6">
+                    <a th:href="@{/admin/rooms}" type="button" class="btn btn-default">
+                        <i class="fas fa-chevron-left"></i> Quay lại
+                    </a>
+                    <button type="button" class="btn btn-info px-4" id="btn-create">
+                        Lưu
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <form id="form-create-room">
+                                        <div class="form-group">
+                                            <label>Tên phòng</label>
+                                            <textarea type="text" class="form-control" id="name" name="name" th:text="${room.name}"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Mã phòng</label>
+                                            <textarea type="text" class="form-control" id="roomCode" name="roomCode" th:text="${room.room_code}"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Giá phòng</label>
+                                            <textarea type="text" class="form-control" id="price" name="price" th:text="${room.price}"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Vị trí phòng</label>
+                                            <textarea type="text" class="form-control" id="location" name="location" th:text="${room.location}"></textarea>
+                                        </div>
+                                        <div>
+                                            <div class="form-group">
+                                                <label>Loại phòng</label>
+                                                <div class="select2-purple">
+                                                    <select class="select2 form-control" id="roomType">
+                                                        <option th:each="roomType : ${roomTypeList}"
+                                                                th:selected="1"
+                                                                th:value="${roomType.id}"
+                                                                th:text="${roomType.name}">
+                                                        </option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<th:block id="js">
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/highlight.js/latest/highlight.min.js"></script>
+
+    <script th:src="@{/admin-lte/plugins/select2/js/select2.full.min.js}"></script>
+
+    <script th:inline="javascript">
+        const room = [[${room}]];
+        //Initialize Select2 Elements
+        $(".select2").select2();
+        $('#form-create-room').validate({
+            rules: {
+                name: {
+                    required: true
+                },
+                roomCode: {
+                    required: true
+                },
+                price: {
+                    required: true
+                },
+                location: {
+                    required: true
+                }
+            },
+            messages: {
+                name: {
+                    required: "Tên phòng không được để trống"
+                },
+                roomCode: {
+                    required: "Mã phòng không được để trống"
+                },
+                price: {
+                    required: "Giá phòng không được để trống"
+                },
+                location: {
+                    required: "Vị trí không được để trống"
+                }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                console.log({error, element});
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            }
+        });
+
+        // Tạo rooms -> click button -> request -> response -> chuyển hướng qua trang chi tiết của room đó
+        const btnCreate = document.getElementById("btn-create");
+        const name = document.getElementById("name");
+        const roomCode = document.getElementById("roomCode");
+        const price = document.getElementById("price");
+        const location1 = document.getElementById("location");
+
+        btnCreate.addEventListener("click", async () => {
+            // validate form
+            if (!$('#form-create-room').valid()) {
+                return;
+            }
+
+            // Build request body
+            const data = {
+                name: name.value,
+                roomCode: roomCode.value,
+                roomType: $("#roomType").val().map(id => Number(id)),
+                location: location1.value,
+                price: price.value,
+            };
+            console.log(data);
+
+            try {
+                let res = await axios.put("/api/v1/admin/rooms/" + room.id, data);
+                if (res.status === 200) {
+                    toastr.success("Cập nhật thành công");
+                } else {
+                    toastr.error("Cập nhật thất bại");
+                }
+            } catch (e) {
+                console.log(e);
+                toastr.error(e.response.data.message);
+            }
+        });
+    </script>
+</th:block>
+
+</div>
+</body>
+</html>
